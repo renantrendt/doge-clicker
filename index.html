@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doge Clicker - Bitcoin Mining Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <button id="achievements-button" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">Achievements</button>
+    
+    <!-- Achievements Popup -->
+    <div id="achievements-popup" class="popup">
+        <div class="popup-content">
+            <span class="close-popup">&times;</span>
+            <h2>Achievements</h2>
+            <div id="achievements-list">
+                <div class="achievement" id="achievement-cool-hat">
+                    <span class="achievement-icon">🎩</span>
+                    <div class="achievement-info">
+                        <h3>Cool Hat</h3>
+                        <p>Buy the Cool Hat</p>
+                    </div>
+                    <span class="achievement-locked">🔒</span>
+                </div>
+                <div class="achievement" id="achievement-first-million">
+                    <span class="achievement-icon">💰</span>
+                    <div class="achievement-info">
+                        <h3>Your 1st M :)))</h3>
+                        <p>Earn your first million dollars</p>
+                    </div>
+                    <span class="achievement-locked">🔒</span>
+                </div>
+                <div class="achievement" id="achievement-richer-than-elon">
+                    <span class="achievement-icon">🚀</span>
+                    <div class="achievement-info">
+                        <h3>Congrats! you are richer than Elon Musk</h3>
+                        <p>Earn more than 1 quadrillion dollars</p>
+                    </div>
+                    <span class="achievement-locked">🔒</span>
+                </div>
+                <div class="achievement" id="achievement-super-rich">
+                    <span class="achievement-icon">👑</span>
+                    <div class="achievement-info">
+                        <h3>Bro you are sooo rich :)) give me some milions plsss?</h3>
+                        <p>Earn more than 1 quintillion dollars</p>
+                    </div>
+                    <span class="achievement-locked">🔒</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <header>
+            <div id="money-display">0 B$</div>
+        </header>
+        
+        <main>
+            <div class="clicker-area">
+                <div class="miners-container" id="miners-display"></div>
+                <button id="bitcoin-button">
+                    <img src="download.jpeg" alt="Bitcoin" id="bitcoin-img">
+                </button>
+                <div id="special-coin-container" class="special-coin-container">
+                    <!-- Special coin will appear here -->
+                </div>
+            </div>
+            
+            <div class="upgrades-container">
+                <h2>Shop</h2>
+                
+                <div class="upgrade-section">
+                    <h3>Doge Miners</h3>
+                    <div id="doge-miners-upgrades" class="upgrades-list">
+                        <!-- Doge miner upgrades will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="upgrade-section">
+                    <h3>Pick Axes</h3>
+                    <div id="pickaxe-upgrades" class="upgrades-list">
+                        <!-- Pickaxe upgrades will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="upgrades-container">
+                <h2>Upgrades</h2>
+                
+                <div class="upgrade-section">
+                    <h3>Special Abilities</h3>
+                    <div id="special-upgrades" class="upgrades-list">
+                        <!-- Special upgrades will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <div class="upgrade-section">
+                    <h3>Boosts</h3>
+                    <div id="boost-upgrades" class="upgrades-list">
+                        <!-- Boost upgrades will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>A Doge Clicker Game by Bernardo&copy; 2025</p>
+        </footer>
+    </div>
+
+    <script src="js/game.js"></script>
+</body>
+</html>
