@@ -8,13 +8,15 @@ const game = {
     specialCoinActive: false,
     specialCoinBoostActive: false,
     specialCoinBoostEndTime: 0,
+    moonMode: false,
     
     // Achievements system
     achievements: {
         coolHat: false,
         firstMillion: false,
         richerThanElon: false, // 1 quadrillion
-        superRich: false       // 1 quintillion
+        superRich: false,      // 1 quintillion
+        moonTrip: false        // 50 quintillion
     },
     
     // Upgrade counts
@@ -22,7 +24,7 @@ const game = {
         owned: Array(1).fill(0)
     },
     pickaxes: {
-        owned: Array(15).fill(0) // Updated to accommodate new pickaxes
+        owned: Array(16).fill(0) // Updated to accommodate new pickaxes including Moon pick
     },
     specialAbilities: {
         owned: Array(2).fill(0) // Money Rain and Cool Hat
@@ -47,6 +49,14 @@ const dogeMinersConfig = [
 
 // Pickaxe upgrades configuration
 const pickaxesConfig = [
+    // Moon pick - only visible when in moon mode
+    { 
+        name: "Moon Pick's", 
+        basePrice: 100e18, // 100QU$
+        clickPercentIncrease: 1538, 
+        description: "Increases click value by 1538%",
+        moonOnly: true // This pickaxe is only available on the moon
+    },
     { 
         name: "Bronze Pickaxe", 
         basePrice: 50, 
@@ -205,6 +215,27 @@ function calculateUpgradePrice(basePrice, owned) {
 
 function updateMoneyDisplay() {
     moneyDisplay.textContent = formatMoney(game.money);
+    
+    // Check if player has reached 50 quintillion and hasn't gone to the moon yet
+    if (game.money >= 50e18 && !game.moonMode && !game.achievements.moonTrip) {
+        // Show the moon button in the header
+        const moonButton = document.getElementById('moon-button');
+        if (moonButton) {
+            moonButton.style.display = 'inline-block';
+        }
+    } else if (game.money < 50e18 && !game.moonMode && !game.achievements.moonTrip) {
+        // Hide the moon button if they don't have enough money
+        const moonButton = document.getElementById('moon-button');
+        if (moonButton) {
+            moonButton.style.display = 'none';
+        }
+        
+        // Hide the rocket if they don't have enough money
+        const moonTripContainer = document.getElementById('moon-trip-container');
+        if (moonTripContainer) {
+            moonTripContainer.style.display = 'none';
+        }
+    }
 }
 
 function calculateClickValue() {
@@ -282,13 +313,25 @@ function updateUpgradesAvailability() {
     
     // Update Pickaxes availability
     document.querySelectorAll('.pickaxe-upgrade').forEach((element, index) => {
-        // Show next pickaxe only if the previous one is owned
-        if (index > 0 && game.pickaxes.owned[index - 1] === 0) {
-            element.style.display = 'none';
-            return;
-        } else {
-            element.style.display = 'block';
+        // Check if this is a moon-only pickaxe
+        if (pickaxesConfig[index].moonOnly) {
+            // Only show moon pickaxes when in moon mode AND after buying the Doge Pickaxe
+            const dogePickaxeIndex = 14; // Index of the Doge Pickaxe (last regular pickaxe)
+            if (!game.moonMode || game.pickaxes.owned[dogePickaxeIndex] === 0) {
+                element.style.display = 'none';
+                return;
+            }
+        } else if (index > 0) {
+            // For non-moon pickaxes, show next pickaxe only if the previous one is owned
+            // Skip index 0 check if it's a moon pickaxe
+            const prevIndex = pickaxesConfig[index-1].moonOnly ? index-2 : index-1;
+            if (prevIndex >= 0 && game.pickaxes.owned[prevIndex] === 0) {
+                element.style.display = 'none';
+                return;
+            }
         }
+        
+        element.style.display = 'block';
         
         // If already owned, show as owned
         if (game.pickaxes.owned[index] > 0) {
@@ -705,15 +748,69 @@ function initGame() {
     createSpecialAbilitiesUpgradeElements();
     createBoostUpgradeElements();
     
+    // Load saved game if exists
+    loadGame();
+    
     // Add event listener to bitcoin button
     bitcoinButton.addEventListener('click', handleBitcoinClick);
     
     // Add temporary Bitcoin styling
     setupBitcoinImage();
     
+    // Apply moon mode if active
+    if (game.moonMode || game.achievements.moonTrip) {
+        document.body.style.backgroundImage = 'url("jrt0bgtf4vi61.jpg")';
+        const bitcoinImg = document.getElementById('bitcoin-img');
+        bitcoinImg.src = 'DogeMoon-removebg-preview.png';
+        
+        // Hide the rocket and moon button if moon mode is already active
+        const moonTripContainer = document.getElementById('moon-trip-container');
+        if (moonTripContainer) {
+            moonTripContainer.style.display = 'none';
+        }
+        
+        const moonButton = document.getElementById('moon-button');
+        if (moonButton) {
+            moonButton.style.display = 'none';
+        }
+    }
+    
     // Initial UI updates
     updateMoneyDisplay();
     updateUpgradesAvailability();
+    
+    // Check if player has 50QU$ or more when the game loads
+    if (game.money >= 50e18 && !game.moonMode && !game.achievements.moonTrip) {
+        // Show the moon button in the header
+        const moonButton = document.getElementById('moon-button');
+        if (moonButton) {
+            moonButton.style.display = 'inline-block';
+        }
+    }
+    
+    // Debug moon button removed
+    
+    // Add Earth button functionality to the Doge image in header
+    const earthButton = document.getElementById('earth-button');
+    if (earthButton) {
+        earthButton.addEventListener('click', function() {
+            // Only return to Earth if in moon mode
+            if (game.moonMode) {
+                returnToEarth();
+            }
+        });
+    }
+    
+    // Add Moon button functionality
+    const moonButton = document.getElementById('moon-button');
+    if (moonButton) {
+        moonButton.addEventListener('click', function() {
+            // Only go to Moon if not in moon mode and have enough money
+            if (!game.moonMode && game.money >= 50e18) {
+                goToMoon();
+            }
+        });
+    }
     
     // Load any existing doge miners
     addDogeMinersToDisplay();
@@ -845,6 +942,9 @@ function saveGame() {
     // Add timestamp for special coin boost end time
     saveData.specialCoinBoostEndTime = game.specialCoinBoostEndTime;
     
+    // Ensure moonMode is saved
+    saveData.moonMode = game.moonMode;
+    
     localStorage.setItem('dogeClickerSave', JSON.stringify(saveData));
 }
 
@@ -858,6 +958,7 @@ function loadGame() {
         game.money = loadedGame.money || 0;
         game.clickValue = loadedGame.clickValue || 1;
         game.dogeHasHat = loadedGame.dogeHasHat || false;
+        game.moonMode = loadedGame.moonMode || false;
         
         // Load special coin boost state
         if (loadedGame.specialCoinBoostActive) {
@@ -1134,6 +1235,50 @@ function showFloatingText(text, x, y, color) {
             document.body.removeChild(floatingText);
         }
     }, 2000);
+}
+
+// Moon trip feature - No longer using the rocket prompt, using the moon button in header instead
+
+function goToMoon() {
+    // Change the background to moon
+    document.body.style.backgroundImage = 'url("jrt0bgtf4vi61.jpg")';
+    
+    // Change the Bitcoin image to Moon Doge
+    const bitcoinImg = document.getElementById('bitcoin-img');
+    bitcoinImg.src = 'DogeMoon-removebg-preview.png';
+    
+    // Update game state
+    game.moonMode = true;
+    
+    // Unlock achievement
+    unlockAchievement('moonTrip', 'To The Moon!', 'You went to the moon with your Doge');
+    
+    // Hide the rocket container
+    const container = document.getElementById('moon-trip-container');
+    if (container) {
+        container.style.display = 'none';
+    }
+    
+    // Save the game
+    saveGame();
+}
+
+function returnToEarth() {
+    // Only return to Earth if we're in moon mode
+    if (!game.moonMode) return;
+    
+    // Change the background back to normal
+    document.body.style.backgroundImage = '';
+    
+    // Change the Bitcoin image back to normal Doge
+    const bitcoinImg = document.getElementById('bitcoin-img');
+    bitcoinImg.src = 'download.jpeg';
+    
+    // Update game state
+    game.moonMode = false;
+    
+    // Save the game
+    saveGame();
 }
 
 // Initialize the game when the page loads

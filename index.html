@@ -47,15 +47,39 @@
                     </div>
                     <span class="achievement-locked">🔒</span>
                 </div>
+                <div class="achievement" id="achievement-moon-trip">
+                    <span class="achievement-icon">🌕</span>
+                    <div class="achievement-info">
+                        <h3>To The Moon!</h3>
+                        <p>You went to the moon with your Doge</p>
+                    </div>
+                    <span class="achievement-locked">🔒</span>
+                </div>
             </div>
         </div>
     </div>
     <div class="container">
-        <header>
+        <header style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center; margin-right: 10px;">
+                <img src="images-removebg-preview.png" alt="Earth" id="earth-button" style="height: 40px; cursor: pointer;">
+                <img src="FullMoon2010-removebg-preview (1).png" alt="Moon" id="moon-button" style="height: 40px; margin-left: 5px; cursor: pointer; display: none;">
+            </div>
             <div id="money-display">0 B$</div>
         </header>
         
         <main>
+            <!-- Moon Trip Container - No longer used, using the moon button in header instead -->
+            <div class="moon-trip-container" id="moon-trip-container" style="display: none; visibility: hidden;">
+                <div class="moon-trip-content">
+                    <img src="3811742d9ef94f6bb29795541070e951-removebg-preview.png" alt="Rocket" class="moon-rocket">
+                    <p>Man.. You are <span style="color: #ffd700; font-weight: bold;">soo rich</span> that you can go to the moon now!<br>Want to go?</p>
+                    <div class="moon-options">
+                        <button onclick="goToMoon()"><span style="font-size: 1.2em;">🚀</span> (y)</button>
+                        <button onclick="goToMoon()"><span style="font-size: 1.2em;">🌕</span> (y)</button>
+                    </div>
+                </div>
+            </div>
+            
             <div class="clicker-area">
                 <div class="miners-container" id="miners-display"></div>
                 <button id="bitcoin-button">

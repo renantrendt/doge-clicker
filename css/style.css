@@ -203,6 +203,83 @@ main {
     opacity: 0;
 }
 
+/* Moon Trip Container */
+.moon-trip-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 20px auto; /* Space above the shop */
+    z-index: 1000;
+    animation: fadeIn 0.5s;
+}
+
+.moon-trip-content {
+    background-color: #1a1a2e;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    max-width: 500px;
+    color: white;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5); /* Brighter glow */
+    border: 2px solid #4a4a82;
+    position: relative; /* For positioning stars */
+    overflow: hidden; /* Keep stars contained */
+}
+
+/* Add stars to the background */
+.moon-trip-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(white, rgba(255, 255, 255, 0) 2px);
+    background-size: 50px 50px;
+    opacity: 0.3;
+    z-index: -1;
+}
+
+.moon-rocket {
+    width: 180px; /* Larger rocket */
+    margin-bottom: 20px;
+    animation: rocketFloat 3s infinite ease-in-out;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)); /* Add glow effect */
+}
+
+@keyframes rocketFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+.moon-trip-content p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.moon-options {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.moon-options button {
+    background-color: #4a4a82;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.moon-options button:hover {
+    background-color: #6a6aa8;
+    transform: scale(1.05);
+}
+
+
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
