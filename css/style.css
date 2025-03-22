@@ -322,6 +322,33 @@ main {
     animation: float 3s infinite ease-in-out;
 }
 
+/* Moon miner styling */
+.moon-miner {
+    width: 20px; /* Slightly larger than regular miners */
+    height: 20px;
+    filter: drop-shadow(0 0 5px rgba(135, 206, 250, 0.8)); /* Light blue glow */
+    animation: moonFloat 4s infinite ease-in-out; /* Different animation */
+}
+
+/* Special animation for moon miners */
+@keyframes moonFloat {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-12px) rotate(5deg);
+    }
+    50% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    75% {
+        transform: translateY(8px) rotate(-5deg);
+    }
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+
 @keyframes float {
     0% {
         transform: translateY(0px);

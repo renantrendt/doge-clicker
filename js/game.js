@@ -139,25 +139,29 @@ const pickaxesConfig = [
         name: "Wooden Pickaxe", 
         basePrice: 40000000, 
         clickPercentIncrease: 400, 
-        description: "Increases click value by 400%"
+        description: "Increases click value by 400%",
+        image: "images/Wooden_Pickaxe_JE2_BE2-removebg-preview.png"
     },
     { 
         name: "Stone Pickaxe", 
         basePrice: 50000000, 
         clickPercentIncrease: 500, 
-        description: "Increases click value by 500%"
+        description: "Increases click value by 500%",
+        image: "images/images__3_-removebg-preview.png"
     },
     { 
         name: "Obsidian Pickaxe", 
         basePrice: 75000000, 
         clickPercentIncrease: 750, 
-        description: "Increases click value by 750%"
+        description: "Increases click value by 750%",
+        image: "images/Pickaxe_GoldenGuardAntler-removebg-preview.png"
     },
     { 
         name: "Doge Pickaxe", 
         basePrice: 1000000000000, 
         clickPercentIncrease: 1000, 
-        description: "Increases click value by 1000%"
+        description: "Increases click value by 1000%",
+        image: "images/52399ffa-6137-471e-a47b-86f211fdbaf6jpeg-removebg-preview.png"
     }
 ];
 
@@ -606,6 +610,36 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.background = 'linear-gradient(135deg, #1a0033 0%, #3d0066 50%, #6600cc 100%)';
             upgradeElement.style.boxShadow = '0 0 15px rgba(102, 0, 204, 0.7)';
             upgradeElement.style.border = '1px solid #9933ff';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Doge Pickaxe') {
+            // Add doge-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #F2A900 0%, #FFD700 50%, #FFEC8B 100%)';
+            upgradeElement.style.boxShadow = '0 0 15px rgba(242, 169, 0, 0.8)';
+            upgradeElement.style.border = '2px solid #F2A900';
+            upgradeElement.style.color = '#000000';
+            // Make Doge Pickaxe image larger
+            const dogeImage = upgradeElement.querySelector('img');
+            if (dogeImage) {
+                dogeImage.style.maxWidth = '70px';
+                dogeImage.style.maxHeight = '70px';
+            }
+        } else if (upgrade.name === 'Obsidian Pickaxe') {
+            // Add obsidian-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #0D0D0D 0%, #1E1E1E 50%, #2D2D2D 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(0, 0, 0, 0.8)';
+            upgradeElement.style.border = '1px solid #333333';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Stone Pickaxe') {
+            // Add stone-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #424242 0%, #616161 50%, #9E9E9E 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(66, 66, 66, 0.7)';
+            upgradeElement.style.border = '1px solid #757575';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Wooden Pickaxe') {
+            // Add wooden-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #5D4037 0%, #8D6E63 50%, #A1887F 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(93, 64, 55, 0.7)';
+            upgradeElement.style.border = '1px solid #8D6E63';
             upgradeElement.style.color = '#ffffff';
         } else if (upgrade.name === 'Beans Pickaxe') {
             // Add bean-themed background
@@ -1181,10 +1215,18 @@ function addDogeMinersToDisplay() {
     // Add a miner image for each owned miner
     for (let i = 0; i < displayMiners; i++) {
         const minerImg = document.createElement('img');
-        // Use absolute path to ensure image loads
-        minerImg.src = './doge-coin-miner-game-removebg-preview.png';
-        minerImg.alt = 'Doge Miner';
-        minerImg.classList.add('doge-miner');
+        // Use different image based on moon mode
+        if (game.moonMode) {
+            // Use the moon miner image when in moon mode
+            minerImg.src = './Screenshot_2025-03-20_at_8.43.32_PM-removebg-preview.png';
+            minerImg.alt = 'Moon Doge Miner';
+            minerImg.classList.add('doge-miner', 'moon-miner');
+        } else {
+            // Use the regular miner image when on Earth
+            minerImg.src = './doge-coin-miner-game-removebg-preview.png';
+            minerImg.alt = 'Doge Miner';
+            minerImg.classList.add('doge-miner');
+        }
         
         // Add an onerror handler to log if image fails to load
         minerImg.onerror = function() {
@@ -1362,6 +1404,9 @@ function goToMoon() {
         element.style.display = 'block';
     });
     
+    // Refresh miners display to show moon miners
+    addDogeMinersToDisplay();
+    
     // Unlock achievement
     unlockAchievement('moonTrip', 'To The Moon!', 'You went to the moon with your Doge');
     
@@ -1373,6 +1418,8 @@ function goToMoon() {
     
     // Save the game
     saveGame();
+    
+    console.log('Moon mode activated, miners refreshed');
 }
 
 function returnToEarth() {
@@ -1397,8 +1444,13 @@ function returnToEarth() {
     // Update upgrades to hide moon-specific pickaxes
     updateUpgradesAvailability();
     
+    // Refresh miners display to show regular miners
+    addDogeMinersToDisplay();
+    
     // Save the game
     saveGame();
+    
+    console.log('Returned to Earth, miners refreshed');
 }
 
 // Initialize the game when the page loads
