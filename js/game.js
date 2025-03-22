@@ -9,6 +9,7 @@ const game = {
     specialCoinBoostActive: false,
     specialCoinBoostEndTime: 0,
     moonMode: false,
+    marsMode: false,
     
     // Achievements system
     achievements: {
@@ -16,7 +17,8 @@ const game = {
         firstMillion: false,
         richerThanElon: false, // 1 quadrillion
         superRich: false,      // 1 quintillion
-        moonTrip: false        // 50 quintillion
+        moonTrip: false,       // 50 quintillion
+        marsTrip: false        // 5 sextillion
     },
     
     // Upgrade counts
@@ -49,6 +51,15 @@ const dogeMinersConfig = [
 
 // Pickaxe upgrades configuration
 const pickaxesConfig = [
+    // Mars pick - only visible when in Mars mode
+    { 
+        name: "Mars Pick", 
+        basePrice: 10e21, // 10SE$
+        clickPercentIncrease: 3000, 
+        description: "Increases click value by 3000% - Only available on Mars!",
+        marsOnly: true, // This pickaxe is only available on Mars
+        image: "js/2c111fb0d0bd85250b506a0ab8e9f9060df2b28fr1-512-512v2_uhq-removebg-preview.png" // Mars pickaxe image
+    },
     // Moon pick - only visible when in moon mode
     { 
         name: "Moon Pick", 
@@ -247,10 +258,27 @@ function updateMoneyDisplay() {
         }
         
         // Hide the rocket if they don't have enough money
-        const moonTripContainer = document.getElementById('moon-trip-container');
-        if (moonTripContainer) {
-            moonTripContainer.style.display = 'none';
+    }
+    
+    // Check if player has reached 5 sextillion and hasn't gone to Mars yet
+    if (game.money >= 5e21 && !game.marsMode && !game.achievements.marsTrip) {
+        // Show the Mars button in the header
+        const marsButton = document.getElementById('mars-button');
+        if (marsButton) {
+            marsButton.style.display = 'inline-block';
         }
+    } else if (game.money < 5e21 && !game.marsMode && !game.achievements.marsTrip) {
+        // Hide the Mars button if they don't have enough money
+        const marsButton = document.getElementById('mars-button');
+        if (marsButton) {
+            marsButton.style.display = 'none';
+        }
+    }
+    
+    // Hide the rocket if they don't have enough money for moon
+    const moonTripContainer = document.getElementById('moon-trip-container');
+    if (moonTripContainer) {
+        moonTripContainer.style.display = 'none';
     }
 }
 
@@ -329,17 +357,30 @@ function updateUpgradesAvailability() {
     
     // Update Pickaxes availability
     document.querySelectorAll('.pickaxe-upgrade').forEach((element, index) => {
+        // Check if this is a Mars-only pickaxe
+        if (pickaxesConfig[index].marsOnly) {
+            // Only show Mars pickaxes when in Mars mode
+            if (!game.marsMode) {
+                element.style.display = 'none';
+                return;
+            }
+            element.classList.add('mars-only-upgrade');
+        }
         // Check if this is a moon-only pickaxe
-        if (pickaxesConfig[index].moonOnly) {
+        else if (pickaxesConfig[index].moonOnly) {
             // Only show moon pickaxes when in moon mode
             if (!game.moonMode) {
                 element.style.display = 'none';
                 return;
             }
+            element.classList.add('moon-only-upgrade');
         } else if (index > 0) {
-            // For non-moon pickaxes, show next pickaxe only if the previous one is owned
-            // Skip index 0 check if it's a moon pickaxe
-            const prevIndex = pickaxesConfig[index-1].moonOnly ? index-2 : index-1;
+            // For non-special pickaxes, show next pickaxe only if the previous one is owned
+            // Skip index checks for special pickaxes (moon or mars)
+            let prevIndex = index - 1;
+            while (prevIndex >= 0 && (pickaxesConfig[prevIndex].moonOnly || pickaxesConfig[prevIndex].marsOnly)) {
+                prevIndex--;
+            }
             if (prevIndex >= 0 && game.pickaxes.owned[prevIndex] === 0) {
                 element.style.display = 'none';
                 return;
@@ -913,6 +954,13 @@ function initGame() {
         }
     }
     
+    // Apply Mars mode if active
+    if (game.marsMode || game.achievements.marsTrip) {
+        document.body.style.backgroundImage = 'url("images/2277768014.jpg")';
+        const bitcoinImg = document.getElementById('bitcoin-img');
+        bitcoinImg.src = '518LYfvxaFL-removebg-preview.png';
+    }
+    
     // Initial UI updates
     updateMoneyDisplay();
     updateUpgradesAvailability();
@@ -926,14 +974,23 @@ function initGame() {
         }
     }
     
+    // Check if player has 5SE$ or more when the game loads
+    if (game.money >= 5e21 && !game.marsMode && !game.achievements.marsTrip) {
+        // Show the Mars button in the header
+        const marsButton = document.getElementById('mars-button');
+        if (marsButton) {
+            marsButton.style.display = 'inline-block';
+        }
+    }
+    
     // Debug moon button removed
     
     // Add Earth button functionality to the Doge image in header
     const earthButton = document.getElementById('earth-button');
     if (earthButton) {
         earthButton.addEventListener('click', function() {
-            // Only return to Earth if in moon mode
-            if (game.moonMode) {
+            // Return to Earth if in moon or mars mode
+            if (game.moonMode || game.marsMode) {
                 returnToEarth();
             }
         });
@@ -946,6 +1003,17 @@ function initGame() {
             // Only go to Moon if not in moon mode and have enough money
             if (!game.moonMode && game.money >= 50e18) {
                 goToMoon();
+            }
+        });
+    }
+    
+    // Add Mars button functionality
+    const marsButton = document.getElementById('mars-button');
+    if (marsButton) {
+        marsButton.addEventListener('click', function() {
+            // Only go to Mars if not in Mars mode and have enough money
+            if (!game.marsMode && game.money >= 5e21) {
+                goToMars();
             }
         });
     }
@@ -1215,12 +1283,17 @@ function addDogeMinersToDisplay() {
     // Add a miner image for each owned miner
     for (let i = 0; i < displayMiners; i++) {
         const minerImg = document.createElement('img');
-        // Use different image based on moon mode
+        // Use different image based on current mode
         if (game.moonMode) {
             // Use the moon miner image when in moon mode
             minerImg.src = './Screenshot_2025-03-20_at_8.43.32_PM-removebg-preview.png';
             minerImg.alt = 'Moon Doge Miner';
             minerImg.classList.add('doge-miner', 'moon-miner');
+        } else if (game.marsMode) {
+            // Use the Mars miner image when in Mars mode
+            minerImg.src = './images/3BC22C29-D214-4427-AE59-8508E94F6D38-removebg-preview.png';
+            minerImg.alt = 'Mars Doge Miner';
+            minerImg.classList.add('doge-miner', 'mars-miner');
         } else {
             // Use the regular miner image when on Earth
             minerImg.src = './doge-coin-miner-game-removebg-preview.png';
@@ -1386,6 +1459,11 @@ function showFloatingText(text, x, y, color) {
 // Moon trip feature - No longer using the rocket prompt, using the moon button in header instead
 
 function goToMoon() {
+    // If in Mars mode, return to Earth first
+    if (game.marsMode) {
+        returnFromMars();
+    }
+    
     // Change the background to moon
     document.body.style.backgroundImage = 'url("jrt0bgtf4vi61.jpg")';
     
@@ -1395,6 +1473,7 @@ function goToMoon() {
     
     // Update game state
     game.moonMode = true;
+    game.marsMode = false;
     
     // Update upgrades to show moon-specific pickaxes
     updateUpgradesAvailability();
@@ -1423,8 +1502,8 @@ function goToMoon() {
 }
 
 function returnToEarth() {
-    // Only return to Earth if we're in moon mode
-    if (!game.moonMode) return;
+    // Only return to Earth if we're in moon or mars mode
+    if (!game.moonMode && !game.marsMode) return;
     
     // Change the background back to normal
     document.body.style.backgroundImage = '';
@@ -1435,6 +1514,7 @@ function returnToEarth() {
     
     // Update game state
     game.moonMode = false;
+    game.marsMode = false;
     
     // Hide moon pickaxes
     document.querySelectorAll('.moon-only-upgrade').forEach(element => {
@@ -1451,6 +1531,65 @@ function returnToEarth() {
     saveGame();
     
     console.log('Returned to Earth, miners refreshed');
+}
+
+// Mars mode functions
+function goToMars() {
+    // If in Moon mode, return to Earth first
+    if (game.moonMode) {
+        returnToEarth();
+    }
+    
+    // Change the background to Mars
+    document.body.style.backgroundImage = 'url("images/2277768014.jpg")';
+    
+    // Change the Bitcoin image to Mars Doge
+    const bitcoinImg = document.getElementById('bitcoin-img');
+    bitcoinImg.src = '518LYfvxaFL-removebg-preview.png';
+    
+    // Update game state
+    game.marsMode = true;
+    game.moonMode = false;
+    
+    // Update upgrades
+    updateUpgradesAvailability();
+    
+    // Refresh miners display to show Mars miners
+    addDogeMinersToDisplay();
+    
+    // Unlock achievement
+    unlockAchievement('marsTrip', 'Life on Mars!', 'You went to Mars with your Doge');
+    
+    // Save the game
+    saveGame();
+    
+    console.log('Mars mode activated, miners refreshed');
+}
+
+function returnFromMars() {
+    // Only return from Mars if we're in Mars mode
+    if (!game.marsMode) return;
+    
+    // Change the background back to normal
+    document.body.style.backgroundImage = '';
+    
+    // Change the Bitcoin image back to normal Doge
+    const bitcoinImg = document.getElementById('bitcoin-img');
+    bitcoinImg.src = 'download.jpeg';
+    
+    // Update game state
+    game.marsMode = false;
+    
+    // Update upgrades
+    updateUpgradesAvailability();
+    
+    // Refresh miners display to show regular miners
+    addDogeMinersToDisplay();
+    
+    // Save the game
+    saveGame();
+    
+    console.log('Returned from Mars, miners refreshed');
 }
 
 // Initialize the game when the page loads

@@ -330,6 +330,14 @@ main {
     animation: moonFloat 4s infinite ease-in-out; /* Different animation */
 }
 
+/* Mars miner styling */
+.mars-miner {
+    width: 22px; /* Even larger than moon miners */
+    height: 22px;
+    filter: drop-shadow(0 0 6px rgba(255, 69, 0, 0.9)); /* Red-orange glow */
+    animation: marsFloat 3s infinite ease-in-out; /* Different animation */
+}
+
 /* Special animation for moon miners */
 @keyframes moonFloat {
     0% {
@@ -346,6 +354,22 @@ main {
     }
     100% {
         transform: translateY(0px) rotate(0deg);
+    }
+}
+
+/* Special animation for Mars miners */
+@keyframes marsFloat {
+    0% {
+        transform: translateY(0px) scale(1) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-10px) scale(1.1) rotate(10deg);
+    }
+    66% {
+        transform: translateY(8px) scale(0.9) rotate(-10deg);
+    }
+    100% {
+        transform: translateY(0px) scale(1) rotate(0deg);
     }
 }
 
@@ -492,6 +516,22 @@ footer {
     margin-top: 40px;
     padding: 20px 0;
     color: #777;
+}
+
+/* Moon-only upgrade styling */
+.moon-only-upgrade {
+    background: linear-gradient(135deg, #1a237e, #303f9f, #3949ab);
+    color: white;
+    border: 2px solid #7986cb;
+    box-shadow: 0 0 10px rgba(121, 134, 203, 0.7);
+}
+
+/* Mars-only upgrade styling */
+.mars-only-upgrade {
+    background: linear-gradient(135deg, #b71c1c, #c62828, #d32f2f);
+    color: white;
+    border: 2px solid #ef5350;
+    box-shadow: 0 0 10px rgba(239, 83, 80, 0.7);
 }
 
 @media (max-width: 768px) {
