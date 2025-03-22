@@ -111,25 +111,29 @@ const pickaxesConfig = [
         name: "Dirth Pickaxe", 
         basePrice: 300000, 
         clickPercentIncrease: 200, 
-        description: "Increases click value by 200%"
+        description: "Increases click value by 200%",
+        image: "images/stock-photo-pick-axe-isolated-on-white-background-pickaxe-isolated-487630810-removebg-preview.png"
     },
     { 
         name: "French Frie Pickaxe", 
         basePrice: 3300000, 
         clickPercentIncrease: 250, 
-        description: "Increases click value by 250%"
+        description: "Increases click value by 250%",
+        image: "images/golden-scythe-pickaxe-fortnite-removebg-preview.png"
     },
     { 
         name: "Potato Pickaxe", 
         basePrice: 8000000, 
         clickPercentIncrease: 300, 
-        description: "Increases click value by 300%"
+        description: "Increases click value by 300%",
+        image: "images/images__2_-removebg-preview.png"
     },
     { 
         name: "Beans Pickaxe", 
         basePrice: 35000000, 
         clickPercentIncrease: 350, 
-        description: "Increases click value by 350%"
+        description: "Increases click value by 350%",
+        image: "images/hq720-removebg-preview.png"
     },
     { 
         name: "Wooden Pickaxe", 
@@ -603,6 +607,30 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.boxShadow = '0 0 15px rgba(102, 0, 204, 0.7)';
             upgradeElement.style.border = '1px solid #9933ff';
             upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Beans Pickaxe') {
+            // Add bean-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #800000 0%, #A52A2A 50%, #CD5C5C 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(165, 42, 42, 0.7)';
+            upgradeElement.style.border = '1px solid #A52A2A';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Potato Pickaxe') {
+            // Add potato-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #8B4513 0%, #CD853F 50%, #DEB887 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(139, 69, 19, 0.7)';
+            upgradeElement.style.border = '1px solid #CD853F';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'French Frie Pickaxe') {
+            // Add french fry-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #FF8C00 0%, #FFD700 50%, #FFFF00 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(255, 140, 0, 0.8)';
+            upgradeElement.style.border = '1px solid #FFA500';
+            upgradeElement.style.color = '#000000';
+        } else if (upgrade.name === 'Dirth Pickaxe') {
+            // Add dirt-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #654321 0%, #8B4513 50%, #A0522D 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(139, 69, 19, 0.7)';
+            upgradeElement.style.border = '1px solid #8B4513';
+            upgradeElement.style.color = '#ffffff';
         } else if (upgrade.name === 'Lapis Lazuli Pickaxe') {
             // Add lapis lazuli-themed background
             upgradeElement.style.background = 'linear-gradient(135deg, #000066 0%, #0033cc 50%, #3366ff 100%)';
@@ -638,7 +666,12 @@ function createPickaxeUpgradeElements() {
         // Add image if available
         let imageHtml = '';
         if (upgrade.image) {
-            imageHtml = `<img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-image" style="max-width: 40px; max-height: 40px; margin-bottom: 5px; display: inline-block; float: left; margin-right: 10px;">`;
+            // Make French Frie Pickaxe image larger
+            if (upgrade.name === 'French Frie Pickaxe') {
+                imageHtml = `<img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-image" style="max-width: 60px; max-height: 60px; margin-bottom: 5px; display: inline-block; float: left; margin-right: 10px;">`;
+            } else {
+                imageHtml = `<img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-image" style="max-width: 40px; max-height: 40px; margin-bottom: 5px; display: inline-block; float: left; margin-right: 10px;">`;
+            }
         }
         
         upgradeElement.innerHTML = `
