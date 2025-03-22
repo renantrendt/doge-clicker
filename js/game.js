@@ -51,11 +51,12 @@ const dogeMinersConfig = [
 const pickaxesConfig = [
     // Moon pick - only visible when in moon mode
     { 
-        name: "Moon Pick's", 
+        name: "Moon Pick", 
         basePrice: 100e18, // 100QU$
         clickPercentIncrease: 1538, 
-        description: "Increases click value by 1538%",
-        moonOnly: true // This pickaxe is only available on the moon
+        description: "Increases click value by 1538% - Only available on the Moon!",
+        moonOnly: true, // This pickaxe is only available on the moon
+        image: "86b01fbf7a05ea19165553b3d51b03ef-removebg-preview.png" // Moon pickaxe image
     },
     { 
         name: "Bronze Pickaxe", 
@@ -315,9 +316,8 @@ function updateUpgradesAvailability() {
     document.querySelectorAll('.pickaxe-upgrade').forEach((element, index) => {
         // Check if this is a moon-only pickaxe
         if (pickaxesConfig[index].moonOnly) {
-            // Only show moon pickaxes when in moon mode AND after buying the Doge Pickaxe
-            const dogePickaxeIndex = 14; // Index of the Doge Pickaxe (last regular pickaxe)
-            if (!game.moonMode || game.pickaxes.owned[dogePickaxeIndex] === 0) {
+            // Only show moon pickaxes when in moon mode
+            if (!game.moonMode) {
                 element.style.display = 'none';
                 return;
             }
@@ -575,7 +575,25 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.display = 'none';
         }
         
+        // Add moon-only class for styling if it's a moon pickaxe
+        if (upgrade.moonOnly) {
+            upgradeElement.classList.add('moon-only-upgrade');
+            // Add moon-themed black and blue background
+            upgradeElement.style.background = 'linear-gradient(135deg, #0f0f29 0%, #1e2a4a 50%, #2a3c62 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(100, 180, 255, 0.7)';
+            upgradeElement.style.border = '1px solid #64b4ff';
+            // Make text more visible on dark background
+            upgradeElement.style.color = '#ffffff';
+        }
+        
+        // Add image if available
+        let imageHtml = '';
+        if (upgrade.image) {
+            imageHtml = `<img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-image" style="max-width: 40px; max-height: 40px; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;">`;
+        }
+        
         upgradeElement.innerHTML = `
+            ${imageHtml}
             <h4>${upgrade.name}</h4>
             <div class="price">${formatMoney(upgrade.basePrice)}</div>
             <div class="description">${upgrade.description}</div>
@@ -1250,6 +1268,14 @@ function goToMoon() {
     // Update game state
     game.moonMode = true;
     
+    // Update upgrades to show moon-specific pickaxes
+    updateUpgradesAvailability();
+    
+    // Show moon pickaxe (force display)
+    document.querySelectorAll('.moon-only-upgrade').forEach(element => {
+        element.style.display = 'block';
+    });
+    
     // Unlock achievement
     unlockAchievement('moonTrip', 'To The Moon!', 'You went to the moon with your Doge');
     
@@ -1276,6 +1302,14 @@ function returnToEarth() {
     
     // Update game state
     game.moonMode = false;
+    
+    // Hide moon pickaxes
+    document.querySelectorAll('.moon-only-upgrade').forEach(element => {
+        element.style.display = 'none';
+    });
+    
+    // Update upgrades to hide moon-specific pickaxes
+    updateUpgradesAvailability();
     
     // Save the game
     saveGame();
