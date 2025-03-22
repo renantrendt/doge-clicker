@@ -62,19 +62,22 @@ const pickaxesConfig = [
         name: "Bronze Pickaxe", 
         basePrice: 50, 
         clickPercentIncrease: 10, 
-        description: "Increases click value by 10%"
+        description: "Increases click value by 10%",
+        image: "js/pngtree-pickaxe-vector-isolated-on-white-background-png-image_13774590-removebg-preview.png"
     },
     { 
         name: "Iron Pickaxe", 
         basePrice: 100, 
         clickPercentIncrease: 20, 
-        description: "Increases click value by 20%"
+        description: "Increases click value by 20%",
+        image: "images/ICARUS-Steel-Pickaxe-removebg-preview.png"
     },
     { 
         name: "Gold Pickaxe", 
         basePrice: 170, 
         clickPercentIncrease: 23, 
-        description: "Increases click value by 23%"
+        description: "Increases click value by 23%",
+        image: "images/icon_background-removebg-preview.png"
     },
     { 
         name: "Diamond Pickaxe", 
@@ -575,7 +578,7 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.display = 'none';
         }
         
-        // Add moon-only class for styling if it's a moon pickaxe
+        // Add special styling based on pickaxe type
         if (upgrade.moonOnly) {
             upgradeElement.classList.add('moon-only-upgrade');
             // Add moon-themed black and blue background
@@ -584,19 +587,41 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.border = '1px solid #64b4ff';
             // Make text more visible on dark background
             upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Bronze Pickaxe') {
+            // Add bronze-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #cd7f32 0%, #e6b17f 50%, #ffd700 100%)';
+            upgradeElement.style.boxShadow = '0 0 8px rgba(205, 127, 50, 0.7)';
+            upgradeElement.style.border = '1px solid #b87333';
+            upgradeElement.style.color = '#000000';
+        } else if (upgrade.name === 'Gold Pickaxe') {
+            // Add gold-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #ffd700 0%, #ffec8b 50%, #fffacd 100%)';
+            upgradeElement.style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.8)';
+            upgradeElement.style.border = '1px solid #daa520';
+            upgradeElement.style.color = '#000000';
+        } else if (upgrade.name === 'Iron Pickaxe') {
+            // Add cool metallic background for Iron Pickaxe
+            upgradeElement.style.background = 'linear-gradient(135deg, #777777 0%, #aaaaaa 50%, #cccccc 100%)';
+            upgradeElement.style.boxShadow = '0 0 8px rgba(150, 150, 150, 0.8)';
+            upgradeElement.style.border = '1px solid #888888';
+            upgradeElement.style.color = '#000000';
         }
         
         // Add image if available
         let imageHtml = '';
         if (upgrade.image) {
-            imageHtml = `<img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-image" style="max-width: 40px; max-height: 40px; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;">`;
+            imageHtml = `<img src="${upgrade.image}" alt="${upgrade.name}" class="upgrade-image" style="max-width: 40px; max-height: 40px; margin-bottom: 5px; display: inline-block; float: left; margin-right: 10px;">`;
         }
         
         upgradeElement.innerHTML = `
-            ${imageHtml}
-            <h4>${upgrade.name}</h4>
-            <div class="price">${formatMoney(upgrade.basePrice)}</div>
-            <div class="description">${upgrade.description}</div>
+            <div style="display: flex; align-items: center;">
+                ${imageHtml}
+                <div>
+                    <h4>${upgrade.name}</h4>
+                    <div class="price">${formatMoney(upgrade.basePrice)}</div>
+                    <div class="description">${upgrade.description}</div>
+                </div>
+            </div>
         `;
         
         upgradeElement.addEventListener('click', () => buyPickaxeUpgrade(index));
