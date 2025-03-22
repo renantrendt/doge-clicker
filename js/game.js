@@ -83,25 +83,29 @@ const pickaxesConfig = [
         name: "Diamond Pickaxe", 
         basePrice: 500, 
         clickPercentIncrease: 40, 
-        description: "Increases click value by 40%"
+        description: "Increases click value by 40%",
+        image: "images/background-removebg-preview.png"
     },
     { 
         name: "Netherite Pickaxe", 
         basePrice: 700, 
         clickPercentIncrease: 70, 
-        description: "Increases click value by 70%"
+        description: "Increases click value by 70%",
+        image: "images/Dark_Axe_-_Pickaxe_-_Fortnite-removebg-preview.png"
     },
     { 
         name: "Emerald Pickaxe", 
         basePrice: 1000, 
         clickPercentIncrease: 102, 
-        description: "Increases click value by 102%"
+        description: "Increases click value by 102%",
+        image: "images/images__1_-removebg-preview.png"
     },
     { 
         name: "Lapis Lazuli Pickaxe", 
         basePrice: 30000, 
         clickPercentIncrease: 120, 
-        description: "Increases click value by 120%"
+        description: "Increases click value by 120%",
+        image: "images/images-removebg-preview (1).png"
     },
     { 
         name: "Dirth Pickaxe", 
@@ -592,6 +596,30 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.background = 'linear-gradient(135deg, #cd7f32 0%, #e6b17f 50%, #ffd700 100%)';
             upgradeElement.style.boxShadow = '0 0 8px rgba(205, 127, 50, 0.7)';
             upgradeElement.style.border = '1px solid #b87333';
+            upgradeElement.style.color = '#000000';
+        } else if (upgrade.name === 'Netherite Pickaxe') {
+            // Add netherite-themed background with purple accents
+            upgradeElement.style.background = 'linear-gradient(135deg, #1a0033 0%, #3d0066 50%, #6600cc 100%)';
+            upgradeElement.style.boxShadow = '0 0 15px rgba(102, 0, 204, 0.7)';
+            upgradeElement.style.border = '1px solid #9933ff';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Lapis Lazuli Pickaxe') {
+            // Add lapis lazuli-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #000066 0%, #0033cc 50%, #3366ff 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(0, 51, 204, 0.8)';
+            upgradeElement.style.border = '1px solid #0066ff';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Emerald Pickaxe') {
+            // Add emerald-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #004d00 0%, #00b300 50%, #00e600 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(0, 204, 0, 0.8)';
+            upgradeElement.style.border = '1px solid #00cc00';
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.name === 'Diamond Pickaxe') {
+            // Add diamond-themed background
+            upgradeElement.style.background = 'linear-gradient(135deg, #b9f2ff 0%, #e0f7fa 50%, #f1f9fb 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(0, 191, 255, 0.7)';
+            upgradeElement.style.border = '1px solid #00bfff';
             upgradeElement.style.color = '#000000';
         } else if (upgrade.name === 'Gold Pickaxe') {
             // Add gold-themed background
