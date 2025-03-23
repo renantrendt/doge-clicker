@@ -12,6 +12,12 @@ const game = {
     marsMode: false,
     clickCounter: 0, // Counter for tracking clicks
     
+    // Moon mode time tracking
+    moonTimeStart: 0,          // Timestamp when moon mode was activated
+    moonTimeTotal: 0,          // Total time spent on moon in milliseconds
+    moonHoursBonus: 0,         // Accumulated hourly bonus percentage
+    lastMoonBonusCheck: 0,     // Last time we checked for moon hourly bonus
+    
     // Achievements system
     achievements: {
         coolHat: false,
@@ -161,8 +167,8 @@ const pickaxesConfig = [
     { 
         name: "Moon Pick", 
         basePrice: 100000000000000000000, // 100QU$
-        clickPercentIncrease: 1538, 
-        description: "Increases click value by 1538% - Only available on the Moon!",
+        clickPercentIncrease: 2000, 
+        description: "Increases click value by 2000% - Only available on the Moon!",
         moonOnly: true, // This pickaxe is only available on the moon
         image: "86b01fbf7a05ea19165553b3d51b03ef-removebg-preview.png" // Moon pickaxe image
     },
@@ -306,6 +312,11 @@ function calculateClickValue() {
     // Apply Cool Hat boost if equipped
     if (game.dogeHasHat) {
         value *= 2; // 100% increase
+    }
+    
+    // Apply Moon hourly bonuses if any
+    if (game.moonHoursBonus > 0) {
+        value *= (1 + game.moonHoursBonus / 100);
     }
     
     return value;
@@ -518,6 +529,16 @@ function buyPickaxeUpgrade(index) {
     if (game.money >= price && game.pickaxes.owned[index] === 0) {
         game.money -= price;
         game.pickaxes.owned[index] = 1;
+        
+        // Special handling for Moon pickaxe (index 15)
+        if (index === 15 && pickaxesConfig[index].moonOnly) {
+            // Show notification about the special Moon pickaxe bonus
+            showAchievementNotification(
+                'Moon Pickaxe Acquired!', 
+                'Your Moon Pickaxe gives you a 2000% boost to your $ per second!'
+            );
+        }
+        
         updateMoneyDisplay();
         updateUpgradesAvailability();
         game.clickValue = calculateClickValue();
@@ -924,6 +945,35 @@ function processAutoClickers(timestamp) {
     if (game.specialCoinBoostActive && Date.now() > game.specialCoinBoostEndTime) {
         game.specialCoinBoostActive = false;
         console.log('Special coin boost expired');
+    }
+    
+    // Check for Moon hourly bonus
+    if (game.moonMode && game.moonTimeStart > 0) {
+        const currentTime = Date.now();
+        const timeOnMoon = currentTime - game.moonTimeStart;
+        const hoursSinceLastCheck = (currentTime - game.lastMoonBonusCheck) / (60 * 60 * 1000); // Convert to hours
+        
+        // If at least 1 hour has passed since last check
+        if (hoursSinceLastCheck >= 1) {
+            // Calculate how many full hours have passed
+            const fullHoursPassed = Math.floor(hoursSinceLastCheck);
+            
+            if (fullHoursPassed > 0) {
+                // Add 30% bonus for each hour
+                game.moonHoursBonus += fullHoursPassed * 30;
+                
+                // Update last check time (only count full hours)
+                game.lastMoonBonusCheck += fullHoursPassed * 60 * 60 * 1000;
+                
+                // Show notification about the bonus
+                showAchievementNotification(
+                    'Moon Time Bonus!', 
+                    `You've spent ${fullHoursPassed} more hour${fullHoursPassed > 1 ? 's' : ''} on the Moon! Your $ per second is increased by ${fullHoursPassed * 30}%`
+                );
+                
+                console.log(`Moon hourly bonus applied: +${fullHoursPassed * 30}%, Total: +${game.moonHoursBonus}%`);
+            }
+        }
     }
     
     // Process each auto-clicker
@@ -1594,6 +1644,11 @@ function goToMoon() {
     game.moonMode = true;
     game.marsMode = false;
     
+    // Start tracking time on the moon
+    const currentTime = Date.now();
+    game.moonTimeStart = currentTime;
+    game.lastMoonBonusCheck = currentTime;
+    
     // Update upgrades to show moon-specific pickaxes
     updateUpgradesAvailability();
     
@@ -1623,6 +1678,18 @@ function goToMoon() {
 function returnToEarth() {
     // Only return to Earth if we're in moon or mars mode
     if (!game.moonMode && !game.marsMode) return;
+    
+    // If returning from Moon, update total time spent on Moon
+    if (game.moonMode && game.moonTimeStart > 0) {
+        const currentTime = Date.now();
+        const timeSpent = currentTime - game.moonTimeStart;
+        game.moonTimeTotal += timeSpent;
+        
+        // Reset moon time tracking
+        game.moonTimeStart = 0;
+        
+        console.log(`Time spent on Moon: ${timeSpent}ms, Total: ${game.moonTimeTotal}ms`);
+    }
     
     // Change the background back to normal
     document.body.style.backgroundImage = '';
