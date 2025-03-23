@@ -10,6 +10,7 @@ const game = {
     specialCoinBoostEndTime: 0,
     moonMode: false,
     marsMode: false,
+    clickCounter: 0, // Counter for tracking clicks
     
     // Achievements system
     achievements: {
@@ -51,24 +52,6 @@ const dogeMinersConfig = [
 
 // Pickaxe upgrades configuration
 const pickaxesConfig = [
-    // Mars pick - only visible when in Mars mode
-    { 
-        name: "Mars Pick", 
-        basePrice: 10e21, // 10SE$
-        clickPercentIncrease: 3000, 
-        description: "Increases click value by 3000% - Only available on Mars!",
-        marsOnly: true, // This pickaxe is only available on Mars
-        image: "js/2c111fb0d0bd85250b506a0ab8e9f9060df2b28fr1-512-512v2_uhq-removebg-preview.png" // Mars pickaxe image
-    },
-    // Moon pick - only visible when in moon mode
-    { 
-        name: "Moon Pick", 
-        basePrice: 100e18, // 100QU$
-        clickPercentIncrease: 1538, 
-        description: "Increases click value by 1538% - Only available on the Moon!",
-        moonOnly: true, // This pickaxe is only available on the moon
-        image: "86b01fbf7a05ea19165553b3d51b03ef-removebg-preview.png" // Moon pickaxe image
-    },
     { 
         name: "Bronze Pickaxe", 
         basePrice: 50, 
@@ -173,6 +156,24 @@ const pickaxesConfig = [
         clickPercentIncrease: 1000, 
         description: "Increases click value by 1000%",
         image: "images/52399ffa-6137-471e-a47b-86f211fdbaf6jpeg-removebg-preview.png"
+    },
+    // Moon pick - only visible when in moon mode
+    { 
+        name: "Moon Pick", 
+        basePrice: 100000000000000000000, // 100QU$
+        clickPercentIncrease: 1538, 
+        description: "Increases click value by 1538% - Only available on the Moon!",
+        moonOnly: true, // This pickaxe is only available on the moon
+        image: "86b01fbf7a05ea19165553b3d51b03ef-removebg-preview.png" // Moon pickaxe image
+    },
+    // Mars pick - only visible when in Mars mode
+    { 
+        name: "Mars Pick", 
+        basePrice: 10000000000000000000000, // 10SE$
+        clickPercentIncrease: 3000, 
+        description: "Increases click value by 3000% - Only available on Mars!",
+        marsOnly: true, // This pickaxe is only available on Mars
+        image: "js/2c111fb0d0bd85250b506a0ab8e9f9060df2b28fr1-512-512v2_uhq-removebg-preview.png" // Mars pickaxe image
     }
 ];
 
@@ -319,9 +320,26 @@ function incrementMoney(amount) {
     checkAchievements();
 }
 
+// Array of Doge phrases to display
+const dogePhrases = [
+    "Such WoW!",
+    "Click click click clikc.",
+    "Such coins!",
+    "Many happy!",
+    "Very mini!",
+    "Much rich!",
+    "So currency!",
+    "Very profit!",
+    "Many money!",
+    "Such wealth!"
+];
+
 function handleBitcoinClick() {
     const clickValue = calculateClickValue();
     incrementMoney(clickValue);
+    
+    // Increment click counter
+    game.clickCounter++;
     
     // Create and show click value animation
     const valueEl = document.createElement('div');
@@ -334,6 +352,37 @@ function handleBitcoinClick() {
     setTimeout(() => {
         valueEl.remove();
     }, 1500);
+    
+    // Check if we've reached 100 clicks
+    if (game.clickCounter % 100 === 0) {
+        showDogePhrase();
+    }
+}
+
+// Function to show a random Doge phrase
+function showDogePhrase() {
+    // Get a random phrase
+    const randomIndex = Math.floor(Math.random() * dogePhrases.length);
+    const phrase = dogePhrases[randomIndex];
+    
+    // Create a new element for the phrase
+    const phraseEl = document.createElement('div');
+    phraseEl.textContent = phrase;
+    phraseEl.classList.add('doge-phrase-animation');
+    
+    // Position it randomly on the screen
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    phraseEl.style.left = (Math.random() * (screenWidth - 200)) + 'px';
+    phraseEl.style.top = (Math.random() * (screenHeight - 100)) + 'px';
+    
+    // Add it to the body
+    document.body.appendChild(phraseEl);
+    
+    // Remove it after animation completes
+    setTimeout(() => {
+        phraseEl.remove();
+    }, 3000);
 }
 
 function updateUpgradesAvailability() {
@@ -632,7 +681,15 @@ function createPickaxeUpgradeElements() {
         }
         
         // Add special styling based on pickaxe type
-        if (upgrade.moonOnly) {
+        if (upgrade.marsOnly) {
+            upgradeElement.classList.add('mars-only-upgrade');
+            // Add Mars-themed red background
+            upgradeElement.style.background = 'linear-gradient(135deg, #8B0000 0%, #B22222 50%, #CD5C5C 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(255, 100, 100, 0.7)';
+            upgradeElement.style.border = '1px solid #FF6347';
+            // Make text more visible on dark background
+            upgradeElement.style.color = '#ffffff';
+        } else if (upgrade.moonOnly) {
             upgradeElement.classList.add('moon-only-upgrade');
             // Add moon-themed black and blue background
             upgradeElement.style.background = 'linear-gradient(135deg, #0f0f29 0%, #1e2a4a 50%, #2a3c62 100%)';
@@ -749,16 +806,49 @@ function createPickaxeUpgradeElements() {
             }
         }
         
-        upgradeElement.innerHTML = `
-            <div style="display: flex; align-items: center;">
-                ${imageHtml}
-                <div>
-                    <h4>${upgrade.name}</h4>
-                    <div class="price">${formatMoney(upgrade.basePrice)}</div>
-                    <div class="description">${upgrade.description}</div>
+        // For Mars and Moon pickaxes, ALWAYS use hardcoded price strings to avoid NaN issues
+        let priceDisplay;
+        if (upgrade.name === 'Mars Pick') {
+            // Force Mars Pick to always show 14 SE$
+            priceDisplay = '14 SE$';
+        } else if (upgrade.name === 'Moon Pick') {
+            // Force Moon Pick to always show 100 QU$
+            priceDisplay = '100 QU$';
+        } else {
+            // For all other pickaxes, calculate normally
+            priceDisplay = formatMoney(calculateUpgradePrice(upgrade.basePrice, game.pickaxes.owned[index]));
+            
+            // Safety check for NaN values
+            if (priceDisplay === 'NaN$' || priceDisplay.includes('NaN')) {
+                console.log('NaN price detected for', upgrade.name);
+                priceDisplay = formatMoney(upgrade.basePrice);
+            }
+        }
+        
+        // Special case for Mars Pick to ensure price displays correctly
+        if (upgrade.name === 'Mars Pick') {
+            upgradeElement.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    ${imageHtml}
+                    <div>
+                        <h4>${upgrade.name}</h4>
+                        <div class="price">14 SE$</div>
+                        <div class="description">${upgrade.description}</div>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
+        } else {
+            upgradeElement.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    ${imageHtml}
+                    <div>
+                        <h4>${upgrade.name}</h4>
+                        <div class="price">${priceDisplay}</div>
+                        <div class="description">${upgrade.description}</div>
+                    </div>
+                </div>
+            `;
+        }
         
         upgradeElement.addEventListener('click', () => buyPickaxeUpgrade(index));
         
@@ -1035,6 +1125,35 @@ function initGame() {
     
     // Check achievements after loading
     checkAchievements();
+}
+
+// Console command to set money amount
+function setMoney(amount) {
+    game.money = parseFloat(amount);
+    updateMoneyDisplay();
+    updateUpgradesAvailability();
+    
+    // Check if we should show the Moon button
+    if (game.money >= 50e18 && !game.moonMode && !game.achievements.moonTrip) {
+        const moonButton = document.getElementById('moon-button');
+        if (moonButton) {
+            moonButton.style.display = 'inline-block';
+        }
+    }
+    
+    // Check if we should show the Mars button
+    if (game.money >= 5e21 && !game.marsMode && !game.achievements.marsTrip) {
+        const marsButton = document.getElementById('mars-button');
+        if (marsButton) {
+            marsButton.style.display = 'inline-block';
+        }
+    }
+    
+    // Check achievements
+    checkAchievements();
+    
+    console.log(`Money set to ${formatMoney(game.money)}`);
+    return `Money set to ${formatMoney(game.money)}`;
 }
 
 // Achievements system
@@ -1558,7 +1677,7 @@ function goToMars() {
     addDogeMinersToDisplay();
     
     // Unlock achievement
-    unlockAchievement('marsTrip', 'Life on Mars!', 'You went to Mars with your Doge');
+    unlockAchievement('marsTrip', 'Man you got to mars 1st than Elon musk', 'You beat Elon to Mars with your Doge');
     
     // Save the game
     saveGame();
