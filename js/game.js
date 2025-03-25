@@ -33,7 +33,7 @@ const game = {
         owned: Array(1).fill(0)
     },
     pickaxes: {
-        owned: Array(16).fill(0) // Updated to accommodate new pickaxes including Moon pick
+        owned: Array(17).fill(0) // Updated to accommodate new pickaxes including Moon pick and Mars pick
     },
     specialAbilities: {
         owned: Array(2).fill(0) // Money Rain and Cool Hat
@@ -174,8 +174,8 @@ const pickaxesConfig = [
     },
     // Mars pick - only visible when in Mars mode
     { 
-        name: "Mars Pick", 
-        basePrice: 10000000000000000000000, // 10SE$
+        name: "Mars Pickaxe", 
+        basePrice:10721842900037382197440, // 100k$
         clickPercentIncrease: 3000, 
         description: "Increases click value by 3000% - Only available on Mars!",
         marsOnly: true, // This pickaxe is only available on Mars
@@ -704,10 +704,10 @@ function createPickaxeUpgradeElements() {
         // Add special styling based on pickaxe type
         if (upgrade.marsOnly) {
             upgradeElement.classList.add('mars-only-upgrade');
-            // Add Mars-themed red background
-            upgradeElement.style.background = 'linear-gradient(135deg, #8B0000 0%, #B22222 50%, #CD5C5C 100%)';
-            upgradeElement.style.boxShadow = '0 0 12px rgba(255, 100, 100, 0.7)';
-            upgradeElement.style.border = '1px solid #FF6347';
+            // Add Mars-themed red and orange background
+            upgradeElement.style.background = 'linear-gradient(135deg, #8B0000 0%, #A52A2A 50%, #CD5C5C 100%)';
+            upgradeElement.style.boxShadow = '0 0 12px rgba(255, 69, 0, 0.8)';
+            upgradeElement.style.border = '1px solid #FF4500';
             // Make text more visible on dark background
             upgradeElement.style.color = '#ffffff';
         } else if (upgrade.moonOnly) {
@@ -827,12 +827,9 @@ function createPickaxeUpgradeElements() {
             }
         }
         
-        // For Mars and Moon pickaxes, ALWAYS use hardcoded price strings to avoid NaN issues
+        // For Moon pickaxe, ALWAYS use hardcoded price string to avoid NaN issues
         let priceDisplay;
-        if (upgrade.name === 'Mars Pick') {
-            // Force Mars Pick to always show 14 SE$
-            priceDisplay = '14 SE$';
-        } else if (upgrade.name === 'Moon Pick') {
+        if (upgrade.name === 'Moon Pick') {
             // Force Moon Pick to always show 100 QU$
             priceDisplay = '100 QU$';
         } else {
@@ -846,30 +843,17 @@ function createPickaxeUpgradeElements() {
             }
         }
         
-        // Special case for Mars Pick to ensure price displays correctly
-        if (upgrade.name === 'Mars Pick') {
-            upgradeElement.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    ${imageHtml}
-                    <div>
-                        <h4>${upgrade.name}</h4>
-                        <div class="price">14 SE$</div>
-                        <div class="description">${upgrade.description}</div>
-                    </div>
+        // Generate HTML for all pickaxes
+        upgradeElement.innerHTML = `
+            <div style="display: flex; align-items: center;">
+                ${imageHtml}
+                <div>
+                    <h4>${upgrade.name}</h4>
+                    <div class="price">${priceDisplay}</div>
+                    <div class="description">${upgrade.description}</div>
                 </div>
-            `;
-        } else {
-            upgradeElement.innerHTML = `
-                <div style="display: flex; align-items: center;">
-                    ${imageHtml}
-                    <div>
-                        <h4>${upgrade.name}</h4>
-                        <div class="price">${priceDisplay}</div>
-                        <div class="description">${upgrade.description}</div>
-                    </div>
-                </div>
-            `;
-        }
+            </div>
+        `;
         
         upgradeElement.addEventListener('click', () => buyPickaxeUpgrade(index));
         
