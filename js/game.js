@@ -1151,6 +1151,9 @@ function initGame() {
     // Start special coin spawning (every 2 minutes)
     startSpecialCoinSpawning();
     
+    // Setup money animation around the main coin
+    setupMoneyAnimation();
+    
     // Set up achievements popup
     setupAchievements();
     
@@ -1760,6 +1763,233 @@ function returnFromMars() {
     saveGame();
     
     console.log('Returned from Mars, miners refreshed');
+}
+
+// Function to create money animations around the main coin
+function setupMoneyAnimation() {
+    // Create additional CSS for money symbols
+    const moneyAnimStyle = document.createElement('style');
+    moneyAnimStyle.textContent = `
+        .money-symbol {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: gold;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);
+            pointer-events: none;
+            z-index: 100;
+            animation: floatMoneySymbol 2s ease-out forwards;
+        }
+        
+        .money-symbol-large {
+            font-size: 36px;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.9);
+        }
+        
+        .money-symbol-bitcoin {
+            color: #f7931a;
+            text-shadow: 0 0 5px rgba(247, 147, 26, 0.7);
+        }
+        
+        .money-symbol-dollar {
+            color: #85bb65;
+            text-shadow: 0 0 5px rgba(133, 187, 101, 0.7);
+        }
+        
+        .money-symbol-sparkle {
+            color: white;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.9), 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+        
+        @keyframes floatMoneySymbol {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.5);
+            }
+            10% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--end-x), var(--end-y)) scale(1.2);
+            }
+        }
+        
+        @keyframes pulseMoneySymbol {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(var(--mid-x), var(--mid-y)) scale(1.5);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--end-x), var(--end-y)) scale(0.8);
+            }
+        }
+        
+        @keyframes spinMoneySymbol {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.5) rotate(0deg);
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--end-x), var(--end-y)) scale(1.2) rotate(360deg);
+            }
+        }
+    `;
+    document.head.appendChild(moneyAnimStyle);
+    
+    // Start the main animation interval
+    setInterval(() => {
+        createMoneySymbols();
+    }, 1000); // Every 1 second (increased frequency)
+    
+    // Start the special animation interval (larger burst of symbols)
+    setInterval(() => {
+        createSpecialMoneyBurst();
+    }, 5000); // Every 5 seconds
+}
+
+// Function to create money symbols around the main coin
+function createMoneySymbols() {
+    const bitcoinButton = document.getElementById('bitcoin-button');
+    if (!bitcoinButton) return;
+    
+    const rect = bitcoinButton.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Create 3-6 money symbols (increased count)
+    const symbolCount = Math.floor(Math.random() * 4) + 3;
+    const symbols = ['$', '💰', '💵', '💲', '💸', '🪙', '💹', '₿'];
+    
+    for (let i = 0; i < symbolCount; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'money-symbol';
+        
+        // Add additional styling classes randomly
+        if (Math.random() < 0.3) {
+            symbol.classList.add('money-symbol-bitcoin');
+        } else if (Math.random() < 0.3) {
+            symbol.classList.add('money-symbol-dollar');
+        }
+        
+        // Select a random symbol
+        symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        // Random starting position around the coin
+        const angle = Math.random() * Math.PI * 2; // Random angle
+        const distance = 20 + Math.random() * 40; // Random distance from center (increased range)
+        const startX = centerX + Math.cos(angle) * distance;
+        const startY = centerY + Math.sin(angle) * distance;
+        
+        // Random ending position (further out)
+        const endDistance = 100 + Math.random() * 150; // Increased range
+        const endX = Math.cos(angle) * endDistance;
+        const endY = Math.sin(angle) * endDistance;
+        
+        // Set position and animation variables
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+        symbol.style.setProperty('--end-x', `${endX}px`);
+        symbol.style.setProperty('--end-y', `${endY}px`);
+        
+        // Randomly choose animation style
+        if (Math.random() < 0.3) {
+            symbol.style.animationName = 'spinMoneySymbol';
+        }
+        
+        // Add to body
+        document.body.appendChild(symbol);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (symbol && symbol.parentNode) {
+                symbol.parentNode.removeChild(symbol);
+            }
+        }, 2000);
+    }
+}
+
+// Function to create a special burst of money symbols
+function createSpecialMoneyBurst() {
+    const bitcoinButton = document.getElementById('bitcoin-button');
+    if (!bitcoinButton) return;
+    
+    const rect = bitcoinButton.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Create a larger burst of 8-12 symbols
+    const symbolCount = Math.floor(Math.random() * 5) + 8;
+    const symbols = ['$', '💰', '💵', '💲', '💸', '🪙', '💹', '₿', '✨', '⭐', '🌟'];
+    
+    for (let i = 0; i < symbolCount; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'money-symbol';
+        
+        // Make some symbols larger
+        if (Math.random() < 0.4) {
+            symbol.classList.add('money-symbol-large');
+        }
+        
+        // Add special styling classes
+        if (Math.random() < 0.3) {
+            symbol.classList.add('money-symbol-sparkle');
+        } else if (Math.random() < 0.3) {
+            symbol.classList.add('money-symbol-bitcoin');
+        } else if (Math.random() < 0.3) {
+            symbol.classList.add('money-symbol-dollar');
+        }
+        
+        // Select a random symbol
+        symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        // Create a circular pattern around the coin
+        const angle = (i / symbolCount) * Math.PI * 2; // Evenly distributed angles
+        const distance = 30 + Math.random() * 20; // Distance from center
+        const startX = centerX + Math.cos(angle) * distance;
+        const startY = centerY + Math.sin(angle) * distance;
+        
+        // Random ending position (further out)
+        const endDistance = 150 + Math.random() * 200;
+        const endX = Math.cos(angle) * endDistance;
+        const endY = Math.sin(angle) * endDistance;
+        
+        // For pulse animation, add midpoint coordinates
+        const midDistance = 70 + Math.random() * 50;
+        const midX = Math.cos(angle) * midDistance;
+        const midY = Math.sin(angle) * midDistance;
+        
+        // Set position and animation variables
+        symbol.style.left = `${startX}px`;
+        symbol.style.top = `${startY}px`;
+        symbol.style.setProperty('--end-x', `${endX}px`);
+        symbol.style.setProperty('--end-y', `${endY}px`);
+        symbol.style.setProperty('--mid-x', `${midX}px`);
+        symbol.style.setProperty('--mid-y', `${midY}px`);
+        
+        // Use pulse animation for special burst
+        symbol.style.animationName = 'pulseMoneySymbol';
+        symbol.style.animationDuration = '2.5s'; // Slightly longer animation
+        
+        // Add to body
+        document.body.appendChild(symbol);
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (symbol && symbol.parentNode) {
+                symbol.parentNode.removeChild(symbol);
+            }
+        }, 2500);
+    }
 }
 
 // Initialize the game when the page loads
