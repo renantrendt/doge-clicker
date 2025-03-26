@@ -10,6 +10,8 @@ const game = {
     specialCoinBoostEndTime: 0,
     moonMode: false,
     marsMode: false,
+    jupiterMode: false,
+    jupiterUnlocked: false,
     clickCounter: 0, // Counter for tracking clicks
     
     // Moon mode time tracking
@@ -25,7 +27,8 @@ const game = {
         richerThanElon: false, // 1 quadrillion
         superRich: false,      // 1 quintillion
         moonTrip: false,       // 50 quintillion
-        marsTrip: false        // 5 sextillion
+        marsTrip: false,       // 5 sextillion
+        jupiterTrip: false     // 777 sextillion
     },
     
     // Upgrade counts
@@ -33,7 +36,7 @@ const game = {
         owned: Array(1).fill(0)
     },
     pickaxes: {
-        owned: Array(17).fill(0) // Updated to accommodate new pickaxes including Moon pick and Mars pick
+        owned: Array(18).fill(0) // Updated to accommodate new pickaxes including Moon pick, Mars pick, and Jupiter pick
     },
     specialAbilities: {
         owned: Array(2).fill(0) // Money Rain and Cool Hat
@@ -180,6 +183,15 @@ const pickaxesConfig = [
         description: "Increases click value by 3000% - Only available on Mars!",
         marsOnly: true, // This pickaxe is only available on Mars
         image: "js/2c111fb0d0bd85250b506a0ab8e9f9060df2b28fr1-512-512v2_uhq-removebg-preview.png" // Mars pickaxe image
+    },
+    // Jupiter pick - only visible when in Jupiter mode
+    { 
+        name: "Jupiter Pickaxe", 
+        basePrice: 50000000000000, // 50B$
+        clickPercentIncrease: 6000, 
+        description: "Increases click value by 6000% - Only available on Jupiter!",
+        jupiterOnly: true, // This pickaxe is only available on Jupiter
+        image: "Screenshot_2025-03-25_at_8.36.58_PM-removebg-preview.png" // Jupiter pickaxe image
     }
 ];
 
@@ -279,6 +291,22 @@ function updateMoneyDisplay() {
         const marsButton = document.getElementById('mars-button');
         if (marsButton) {
             marsButton.style.display = 'none';
+        }
+    }
+    
+    // Check if player has reached 777 sextillion and hasn't gone to Jupiter yet
+    if (game.money >= 777e21 && !game.jupiterMode && !game.achievements.jupiterTrip) {
+        // Show the Jupiter button in the header
+        const jupiterButton = document.getElementById('jupiter-button');
+        if (jupiterButton) {
+            jupiterButton.style.display = 'inline-block';
+            game.jupiterUnlocked = true;
+        }
+    } else if (game.money < 777e21 && !game.jupiterMode && !game.achievements.jupiterTrip && !game.jupiterUnlocked) {
+        // Hide the Jupiter button if they don't have enough money
+        const jupiterButton = document.getElementById('jupiter-button');
+        if (jupiterButton) {
+            jupiterButton.style.display = 'none';
         }
     }
     
@@ -434,6 +462,15 @@ function updateUpgradesAvailability() {
                 return;
             }
             element.classList.add('moon-only-upgrade');
+        }
+        // Check if this is a Jupiter-only pickaxe
+        else if (pickaxesConfig[index].jupiterOnly) {
+            // Only show Jupiter pickaxes when in Jupiter mode
+            if (!game.jupiterMode) {
+                element.style.display = 'none';
+                return;
+            }
+            element.classList.add('jupiter-only-upgrade');
         } else if (index > 0) {
             // For non-special pickaxes, show next pickaxe only if the previous one is owned
             // Skip index checks for special pickaxes (moon or mars)
@@ -536,6 +573,15 @@ function buyPickaxeUpgrade(index) {
             showAchievementNotification(
                 'Moon Pickaxe Acquired!', 
                 'Your Moon Pickaxe gives you a 2000% boost to your $ per second!'
+            );
+        }
+        
+        // Special handling for Jupiter pickaxe (index 17)
+        if (index === 17 && pickaxesConfig[index].jupiterOnly) {
+            // Show notification about the special Jupiter pickaxe bonus
+            showAchievementNotification(
+                'Jupiter Pickaxe Acquired!', 
+                'Your Jupiter Pickaxe gives you a 6000% boost to your $ per second!'
             );
         }
         
@@ -814,6 +860,13 @@ function createPickaxeUpgradeElements() {
             upgradeElement.style.boxShadow = '0 0 8px rgba(150, 150, 150, 0.8)';
             upgradeElement.style.border = '1px solid #888888';
             upgradeElement.style.color = '#000000';
+        } else if (upgrade.jupiterOnly) {
+            // Add Jupiter-themed gold and orange background
+            upgradeElement.classList.add('jupiter-only-upgrade');
+            upgradeElement.style.background = 'linear-gradient(135deg, #ff8f00, #ffb300, #ffd54f)';
+            upgradeElement.style.boxShadow = '0 0 10px rgba(255, 213, 79, 0.7)';
+            upgradeElement.style.border = '2px solid #ffd54f';
+            upgradeElement.style.color = '#000000';
         }
         
         // Add image if available
@@ -1034,12 +1087,12 @@ function setupBitcoinImage() {
         const parent = bitcoinImg.parentElement;
         const newElement = document.createElement('img');
         newElement.id = 'bitcoin-img';
-        newElement.src = 'download.jpeg';
+        newElement.src = 'js/download-removebg-preview.png';
         newElement.alt = 'Bitcoin';
         parent.replaceChild(newElement, bitcoinImg);
     } else {
         // Ensure the image has the right src
-        bitcoinImg.src = 'download.jpeg';
+        bitcoinImg.src = 'js/download-removebg-preview.png';
     }
 }
 
@@ -1083,6 +1136,26 @@ function initGame() {
         document.body.style.backgroundImage = 'url("images/2277768014.jpg")';
         const bitcoinImg = document.getElementById('bitcoin-img');
         bitcoinImg.src = '518LYfvxaFL-removebg-preview.png';
+    }
+    
+    // Apply Jupiter mode if active
+    if (game.jupiterMode || game.achievements.jupiterTrip) {
+        document.body.style.backgroundImage = 'url("0819_JUPITER-2a-WEB.jpg")';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        const bitcoinImg = document.getElementById('bitcoin-img');
+        bitcoinImg.src = 'crypto-currency-dogecoin-golden-symbol-vector-20414103-removebg-preview.png';
+        
+        // Hide Earth, Moon, and Mars buttons if Jupiter mode is active
+        const earthButton = document.getElementById('earth-button');
+        const moonButton = document.getElementById('moon-button');
+        const marsButton = document.getElementById('mars-button');
+        const jupiterButton = document.getElementById('jupiter-button');
+        
+        if (earthButton) earthButton.style.display = 'none';
+        if (moonButton) moonButton.style.display = 'none';
+        if (marsButton) marsButton.style.display = 'none';
+        if (jupiterButton) jupiterButton.style.display = 'inline-block';
     }
     
     // Initial UI updates
@@ -1139,6 +1212,19 @@ function initGame() {
             if (!game.marsMode && game.money >= 5e21) {
                 goToMars();
             }
+        });
+    }
+    
+    // Add Jupiter button functionality
+    const jupiterButton = document.getElementById('jupiter-button');
+    if (jupiterButton) {
+        jupiterButton.addEventListener('click', function() {
+            // Only go to Jupiter if not in Jupiter mode and have enough money
+            if (!game.jupiterMode && game.money >= 777e21) {
+                goToJupiter();
+            }
+            // No longer allowing returning from Jupiter by clicking Jupiter again
+            // This forces players to use the Earth button to return
         });
     }
     
@@ -1244,6 +1330,11 @@ function checkAchievements() {
     if (game.money >= 1000000000000000000 && !game.achievements.superRich) {
         unlockAchievement('superRich', 'Bro you are sooo rich :)) give me some milions plsss?', 'You earned more than 1 quintillion dollars!');
     }
+    
+    // Check for Jupiter trip achievement
+    if (game.jupiterMode && !game.achievements.jupiterTrip) {
+        unlockAchievement('jupiterTrip', 'Jupiter Explorer', 'You reached Jupiter with your Doge!');
+    }
 }
 
 function unlockAchievement(id, title, description) {
@@ -1294,6 +1385,9 @@ function updateAchievementsDisplay() {
     document.getElementById('achievement-first-million').classList.toggle('unlocked', game.achievements.firstMillion);
     document.getElementById('achievement-richer-than-elon').classList.toggle('unlocked', game.achievements.richerThanElon);
     document.getElementById('achievement-super-rich').classList.toggle('unlocked', game.achievements.superRich);
+    document.getElementById('achievement-moon-trip').classList.toggle('unlocked', game.achievements.moonTrip);
+    document.getElementById('achievement-mars-trip').classList.toggle('unlocked', game.achievements.marsTrip);
+    document.getElementById('achievement-jupiter-trip').classList.toggle('unlocked', game.achievements.jupiterTrip);
 }
 
 // Save and Load game
@@ -1321,6 +1415,9 @@ function loadGame() {
         game.clickValue = loadedGame.clickValue || 1;
         game.dogeHasHat = loadedGame.dogeHasHat || false;
         game.moonMode = loadedGame.moonMode || false;
+        game.marsMode = loadedGame.marsMode || false;
+        game.jupiterMode = loadedGame.jupiterMode || false;
+        game.jupiterUnlocked = loadedGame.jupiterUnlocked || false;
         
         // Load special coin boost state
         if (loadedGame.specialCoinBoostActive) {
@@ -1450,6 +1547,11 @@ function addDogeMinersToDisplay() {
             minerImg.src = './images/3BC22C29-D214-4427-AE59-8508E94F6D38-removebg-preview.png';
             minerImg.alt = 'Mars Doge Miner';
             minerImg.classList.add('doge-miner', 'mars-miner');
+        } else if (game.jupiterMode) {
+            // Use the Jupiter miner image when in Jupiter mode
+            minerImg.src = './Screenshot_2025-03-25_at_8.36.58_PM-removebg-preview.png';
+            minerImg.alt = 'Jupiter Doge Miner';
+            minerImg.classList.add('doge-miner', 'jupiter-miner');
         } else {
             // Use the regular miner image when on Earth
             minerImg.src = './doge-coin-miner-game-removebg-preview.png';
@@ -1664,7 +1766,7 @@ function goToMoon() {
 
 function returnToEarth() {
     // Only return to Earth if we're in moon or mars mode
-    if (!game.moonMode && !game.marsMode) return;
+    if (!game.moonMode && !game.marsMode && !game.jupiterMode) return;
     
     // If returning from Moon, update total time spent on Moon
     if (game.moonMode && game.moonTimeStart > 0) {
@@ -1683,11 +1785,12 @@ function returnToEarth() {
     
     // Change the Bitcoin image back to normal Doge
     const bitcoinImg = document.getElementById('bitcoin-img');
-    bitcoinImg.src = 'download.jpeg';
+    bitcoinImg.src = 'js/download-removebg-preview.png';
     
     // Update game state
     game.moonMode = false;
     game.marsMode = false;
+    game.jupiterMode = false;
     
     // Hide moon pickaxes
     document.querySelectorAll('.moon-only-upgrade').forEach(element => {
@@ -1748,10 +1851,18 @@ function returnFromMars() {
     
     // Change the Bitcoin image back to normal Doge
     const bitcoinImg = document.getElementById('bitcoin-img');
-    bitcoinImg.src = 'download.jpeg';
+    bitcoinImg.src = 'js/download-removebg-preview.png';
     
     // Update game state
     game.marsMode = false;
+    
+    // Update UI elements
+    document.getElementById('earth-button').style.display = 'inline-block';
+    document.getElementById('moon-button').style.display = 'inline-block';
+    document.getElementById('mars-button').style.display = 'inline-block';
+    if (game.jupiterUnlocked) {
+        document.getElementById('jupiter-button').style.display = 'inline-block';
+    }
     
     // Update upgrades
     updateUpgradesAvailability();
@@ -1763,6 +1874,102 @@ function returnFromMars() {
     saveGame();
     
     console.log('Returned from Mars, miners refreshed');
+}
+
+// Jupiter mode functions
+function goToJupiter() {
+    // Check if player has enough money
+    if (game.money < 777e21) {
+        showFloatingText("You need 777SE$ to go to Jupiter!", window.innerWidth / 2, window.innerHeight / 2, "#e74c3c");
+        return;
+    }
+    
+    // If in Moon or Mars mode, return to Earth first
+    if (game.moonMode) {
+        returnToEarth();
+    }
+    if (game.marsMode) {
+        returnFromMars();
+    }
+    
+    // Change background to Jupiter
+    document.body.style.backgroundImage = "url('js/5d6v2n4u1pm71.png')";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    
+    // Change the Bitcoin image to Jupiter Doge
+    const bitcoinImg = document.getElementById('bitcoin-img');
+    bitcoinImg.src = 'crypto-currency-dogecoin-golden-symbol-vector-20414103-removebg-preview.png';
+    
+    // Update game state
+    game.jupiterMode = true;
+    game.moonMode = false;
+    game.marsMode = false;
+    game.jupiterUnlocked = true;
+    game.achievements.jupiterTrip = true;
+    
+    // Show achievement notification
+    showAchievementNotification('Jupiter Explorer', 'You reached Jupiter with your Doge!');
+    
+    // Update UI elements - keep all planet buttons visible
+    document.getElementById('earth-button').style.display = 'inline-block';
+    document.getElementById('moon-button').style.display = 'inline-block';
+    document.getElementById('mars-button').style.display = 'inline-block';
+    document.getElementById('jupiter-button').style.display = 'inline-block';
+    
+    // Update upgrades display to show Jupiter-only pickaxes
+    updateUpgradesAvailability();
+    
+    // Refresh miners display to show Jupiter miners
+    addDogeMinersToDisplay();
+    
+    // Show notification
+    showFloatingText("Welcome to Jupiter!", window.innerWidth / 2, window.innerHeight / 2, "#f39c12");
+    
+    // Unlock achievement if not already unlocked
+    if (!game.achievements.jupiterTrip) {
+        unlockAchievement('jupiterTrip', 'Jupiter Explorer', 'You reached Jupiter with your Doge');
+    }
+    
+    // Save the game
+    saveGame();
+    
+    console.log('Jupiter mode activated, miners refreshed');
+}
+
+function returnFromJupiter() {
+    // Only allow return if we're actually on Jupiter
+    if (!game.jupiterMode) return;
+    
+    // Change background back to Earth
+    document.body.style.backgroundImage = "";
+    
+    // Change the Bitcoin image back to normal Doge
+    const bitcoinImg = document.getElementById('bitcoin-img');
+    bitcoinImg.src = 'js/download-removebg-preview.png';
+    
+    // Update game state
+    game.jupiterMode = false;
+    
+    // Update UI elements
+    document.getElementById('earth-button').style.display = 'inline-block';
+    document.getElementById('moon-button').style.display = 'inline-block';
+    document.getElementById('mars-button').style.display = 'inline-block';
+    document.getElementById('jupiter-button').style.display = 'inline-block';
+    
+    // Update pickaxes display to hide Jupiter-only pickaxes
+    updateUpgradesAvailability();
+    
+    // Refresh miners display to show regular miners
+    addDogeMinersToDisplay();
+    
+    // Save the game
+    saveGame();
+    
+    // Show notification
+    showFloatingText("Returned to Earth!", window.innerWidth / 2, window.innerHeight / 2, "#3498db");
+    
+    console.log('Returned from Jupiter, miners refreshed');
 }
 
 // Function to create money animations around the main coin
